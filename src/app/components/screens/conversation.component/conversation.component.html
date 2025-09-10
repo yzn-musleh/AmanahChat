@@ -1,0 +1,135 @@
+<div class="conversation-container" [style.max-height]="maxHeight">
+  <!-- Header -->
+  <div class="conversation-header">
+    <button class="back-button" (click)="closeConversation()" aria-label="Go back">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <path d="M19 12H5M12 19L5 12L12 5" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+      </svg>
+    </button>
+
+    <div class="user-info">
+      <div class="user-avatar" [class.online]="user.isOnline && showOnlineStatus">
+        <img 
+          *ngIf="user.avatar; else avatarPlaceholder" 
+          [src]="user.avatar" 
+          [alt]="user.name"
+          class="avatar-image">
+        <ng-template #avatarPlaceholder>
+          <div class="avatar-placeholder">{{ getAvatarText(user.name) }}</div>
+        </ng-template>
+      </div>
+      
+      <div class="user-details">
+        <h3 class="user-name">{{ user.name }}</h3>
+        <span class="user-status" *ngIf="showOnlineStatus">
+          {{ isTyping ? 'typing...' : (user.isOnline ? 'Online' : 'Offline') }}
+        </span>
+      </div>
+    </div>
+
+    <button class="more-options" aria-label="More options">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <circle cx="12" cy="12" r="1" fill="currentColor"/>
+        <circle cx="12" cy="5" r="1" fill="currentColor"/>
+        <circle cx="12" cy="19" r="1" fill="currentColor"/>
+      </svg>
+    </button>
+  </div>
+
+  <!-- Messages Area -->
+  <div class="messages-container" #messagesContainer>
+    <div class="messages-list">
+      <div 
+        class="message-wrapper"
+        [class.from-current-user]="message.isFromCurrentUser"
+        [class.from-driver]="message.isFromDriver"
+        *ngFor="let message of messages">
+        
+        <div class="message-bubble">
+          <div class="message-content">
+            <p class="message-text">{{ message.message }}</p>
+            <div class="message-meta">
+              <span class="message-time">{{ formatTime(message.timestamp) }}</span>
+              <div class="message-status" *ngIf="message.isFromCurrentUser">
+                <svg 
+                  width="16" 
+                  height="16" 
+                  viewBox="0 0 24 24" 
+                  fill="none" 
+                  [class]="'status-' + message.status">
+                  <path 
+                    d="M20 6L9 17L4 12" 
+                    stroke="currentColor" 
+                    stroke-width="2" 
+                    stroke-linecap="round" 
+                    stroke-linejoin="round"
+                    *ngIf="message.status !== 'read'"/>
+                  <path 
+                    d="M9 12L11 14L20 5M21 12C21 13.1 20.9 14.2 20.7 15.3"
+                    stroke="currentColor" 
+                    stroke-width="2" 
+                    stroke-linecap="round" 
+                    stroke-linejoin="round"
+                    *ngIf="message.status === 'read'"/>
+                </svg>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Typing Indicator -->
+      <div class="message-wrapper typing-indicator" *ngIf="isTyping">
+        <div class="message-bubble">
+          <div class="typing-animation">
+            <span></span>
+            <span></span>
+            <span></span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Input Area -->
+  <div class="input-container">
+    <div class="input-wrapper" [formGroup]="messageForm">
+      <!-- File Upload -->
+      <input 
+        type="file" 
+        #fileInput 
+        (change)="onFileSelected($event)" 
+        style="display: none"
+        *ngIf="allowFileUpload">
+      
+      <button 
+        class="attachment-button"
+        *ngIf="allowFileUpload"
+        aria-label="Attach file">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <path d="M21.44 11.05L12.25 20.54C11.12 21.67 9.38 21.67 8.25 20.54C7.12 19.41 7.12 17.67 8.25 16.54L15.84 8.95C16.52 8.27 17.61 8.27 18.29 8.95C18.97 9.63 18.97 10.72 18.29 11.4L12.25 17.44C11.91 17.78 11.35 17.78 11.01 17.44C10.67 17.1 10.67 16.54 11.01 16.2L16.42 10.79" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+      </button>
+
+      <!-- Text Input -->
+      <textarea
+        #messageInput
+        class="message-input"
+        [placeholder]="placeholder"
+        formControlName="message"
+        (keypress)="onKeyPress($event)"
+        rows="1"></textarea>
+
+      <!-- Send Button -->
+      <button 
+        class="send-button active"
+        (click)="sendMessage()"
+        [disabled]="!messageForm.valid || isSending"
+        aria-label="Send message">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <path d="M22 2L11 13M22 2L15 22L11 13M22 2L2 9L11 13" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+      </button>
+    </div>
+  </div>
+</div>

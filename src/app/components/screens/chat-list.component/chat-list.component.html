@@ -1,0 +1,75 @@
+<div class="driver-widget">
+  <!-- Header Section -->
+  <div class="widget-header">
+    <div class="header-content">
+      <h2 class="widget-title">{{ title }}</h2>
+      <div class="header-avatars">
+        <div class="avatar-group">
+          <div class="avatar avatar-sm">
+            <div class="avatar-placeholder">B</div>
+          </div>
+          <div class="avatar avatar-sm overlap">
+            <div class="avatar-placeholder">B</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Search Section -->
+  <div class="search-section">
+    <div class="search-input-group">
+      <svg class="search-icon" width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <path d="M21 21L16.5 16.5M19 11C19 15.4183 15.4183 19 11 19C6.58172 19 3 15.4183 3 11C3 6.58172 6.58172 3 11 3C15.4183 3 19 6.58172 19 11Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+      </svg>
+      <input 
+        type="text" 
+        class="search-input" 
+        [placeholder]="searchPlaceholder"
+        (input)="onSearchInput($event)">
+    </div>
+  </div>
+
+  <!-- Drivers List -->
+  <div class="drivers-list">
+    <div 
+      class="driver-item" 
+      *ngFor="let chat of chats"
+      (click)="selectChat(chat)">
+      
+      <div class="driver-avatar" >
+        <div class="avatar" [class.online]="chat.isOnline">
+          <img 
+            *ngIf="chat.avatarUrl; else avatarPlaceholder" 
+            [src]="chat.avatarUrl" 
+            [alt]="chat.title">
+          <ng-template #avatarPlaceholder>
+            <div class="avatar-placeholder">{{ getAvatarText(chat.title) }}</div>
+          </ng-template>
+        </div>
+        <div class="notification-badge" *ngIf="chat.totalMessages">
+          {{ chat.totalMessages }}
+        </div>
+      </div>
+
+      <div class="driver-content">
+        <div class="driver-header">
+          <h4 class="driver-name">{{ chat.title }}</h4>
+          <span class="driver-timestamp">{{ formatMessageTime(chat.lastActionDate) }}</span>
+        </div>
+        <p class="driver-description">{{ chat.lastMessage }}</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- Add Button -->
+  <button 
+    *ngIf="showAddButton"
+    class="add-button"
+    (click)="addNew()"
+    type="button">
+    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <path d="M12 5V19M5 12H19" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+    </svg>
+  </button>
+</div>

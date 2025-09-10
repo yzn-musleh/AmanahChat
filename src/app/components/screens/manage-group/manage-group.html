@@ -1,0 +1,147 @@
+<div class="group-selector-container">
+  <!-- Header Section -->
+  <div class="selector-header">
+    <button class="back-button" (click)="onBackClick()" aria-label="Go back">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <path d="M19 12H5M12 19L5 12L12 5" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+      </svg>
+    </button>
+
+    <div class="search-section">
+      <div class="search-input-group">
+        <svg class="search-icon" width="18" height="18" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <path d="M21 21L16.5 16.5M19 11C19 15.4183 15.4183 19 11 19C6.58172 19 3 15.4183 3 11C3 6.58172 6.58172 3 11 3C15.4183 3 19 6.58172 19 11Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+        <input 
+          type="text" 
+          class="search-input" 
+          [placeholder]="searchPlaceholder"
+          ngModel="searchQuery"
+          (input)="onSearchInput($event)">
+      </div>
+    </div>
+  </div>
+
+  <!-- Content Section -->
+  <div class="selector-content">
+    <!-- New Group Section -->
+    <div class="new-group-section" *ngIf="showNewGroupSection">
+      <div class="new-group-header" (click)="toggleNewGroup()">
+        <div class="new-group-icon">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <path d="M16 21V19C16 17.9391 15.5786 16.9217 14.8284 16.1716C14.0783 15.4214 13.0609 15 12 15H5C3.93913 15 2.92172 15.4214 2.17157 16.1716C1.42143 16.9217 1 17.9391 1 19V21" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+            <circle cx="8.5" cy="7" r="4" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+            <path d="M20 8V14M23 11H17" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+        </div>
+        
+        <span class="new-group-text">New group</span>
+      </div>
+
+      <!-- Group Name Input (Expandable) -->
+      <div class="group-name-input" >
+        <input 
+          type="text" 
+          class="group-name-field"
+          placeholder="Group name"
+          ngModel="newGroupName">
+           
+        <div class="group-actions" *ngIf="selectedMembers.size > 0 ">
+          <button 
+            class="create-group-btn"
+            (click)="createGroup()">
+            Create Group ({{ getSelectedCount() }})
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Members List -->
+    <div class="members-list">
+      <div 
+        class="member-item"
+        [class.selected]="isMemberSelected(member.id)"
+        *ngFor="let member of filteredMembers; trackBy: trackMember"
+        (click)="toggleMemberSelection(member)">
+        
+        <div class="member-icon" [class.team-icon]="member.type === 'team'" [class.driver-icon]="member.type === 'driver'">
+          <div class="team-avatars" *ngIf="member.type === 'team'">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <path d="M16 21V19C16 17.9391 15.5786 16.9217 14.8284 16.1716C14.0783 15.4214 13.0609 15 12 15H5C3.93913 15 2.92172 15.4214 2.17157 16.1716C1.42143 16.9217 1 17.9391 1 19V21" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+              <circle cx="8.5" cy="7" r="4" stroke="currentColor" stroke-width="1.5"/>
+              <path d="M20 8V14M17 11H23" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+          </div>
+          
+          <div class="driver-avatar" *ngIf="member.type === 'driver'" [class.online]="member.isOnline">
+            <img 
+              *ngIf="member.avatar; else driverPlaceholder" 
+              [src]="member.avatar" 
+              [alt]="member.name"
+              class="avatar-image">
+            <ng-template #driverPlaceholder>
+              <div class="avatar-placeholder">{{ getAvatarText(member.name) }}</div>
+            </ng-template>
+          </div>
+        </div>
+
+        <!-- Member Info -->
+        <div class="member-info">
+          <h4 class="member-name">{{ member.name }}</h4>
+          <span class="member-type" *ngIf="member.type === 'team' && member.memberCount">
+            {{ member.memberCount }} members
+          </span>
+          <span class="member-status" *ngIf="member.type === 'driver'">
+            {{ member.isOnline ? 'Online' : 'Offline' }}
+          </span>
+        </div>
+
+        <div class="selection-control">
+          <div 
+            class="radio-button"
+            [class.checked]="isMemberSelected(member.id)">
+            <div class="radio-inner" *ngIf="isMemberSelected(member.id)"></div>
+            
+            <svg 
+              *ngIf=" isMemberSelected(member.id)"
+              width="12" 
+              height="12" 
+              viewBox="0 0 24 24" 
+              fill="none" 
+              class="checkmark">
+              <path d="M20 6L9 17L4 12" stroke="white" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+          </div>
+        </div>
+      </div>
+
+      <!-- Empty State -->
+      <div class="empty-state" *ngIf="filteredMembers.length === 0">
+        <div class="empty-icon">
+          <svg width="48" height="48" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <circle cx="11" cy="11" r="8" stroke="currentColor" stroke-width="2"/>
+            <path d="M21 21L16.65 16.65" stroke="currentColor" stroke-width="2"/>
+          </svg>
+        </div>
+        <p class="empty-text">No results found</p>
+        <p class="empty-subtext">Try searching with different keywords</p>
+      </div>
+    </div>
+
+    <!-- Selection Summary -->
+    <div class="selection-summary" *ngIf="selectedMembers.size > 0">
+      <div class="summary-content">
+        <span class="selection-count">{{ getSelectedCount() }} selected</span>
+        <div class="summary-actions">
+          <button class="clear-selection" (click)="clearSelection()">
+            Clear All
+          </button>
+          <button class="select-all" (click)="selectAll()" *ngIf="filteredMembers.length > 0">
+            Select All
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</div>

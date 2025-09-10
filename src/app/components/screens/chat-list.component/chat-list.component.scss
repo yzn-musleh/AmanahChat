@@ -1,0 +1,350 @@
+// Driver Widget SCSS
+.driver-widget {
+    --primary-color: #7b2d8e;
+    --primary-dark: #5d1f6b;
+    --secondary-color: #ffd700;
+    --danger-color: #e74c3c;
+    --text-primary: #2c3e50;
+    --text-secondary: #7f8c8d;
+    --background-white: #ffffff;
+    --background-light: #f8f9fa;
+    --border-color: #e9ecef;
+    --shadow-light: 0 2px 12px rgba(0, 0, 0, 0.08);
+    --shadow-medium: 0 4px 20px rgba(0, 0, 0, 0.12);
+
+    width: 100%;
+    height: 100%;
+    max-width: 380px;
+    background: var(--background-white);
+    border-radius: 20px;
+    box-shadow: var(--shadow-medium);
+    overflow: hidden;
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+    position: relative;
+
+    // Header Section
+    .widget-header {
+        background: var(--primary-color);
+        padding: 24px 20px 20px;
+        border-radius: 20px 20px 0 0;
+        position: relative;
+
+        .header-content {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .widget-title {
+            color: white;
+            font-size: 28px;
+            font-weight: 600;
+            margin: 0;
+            letter-spacing: -0.5px;
+        }
+
+        .header-avatars {
+            .avatar-group {
+                display: flex;
+                align-items: center;
+            }
+        }
+    }
+
+    // Avatar Styles
+    .avatar {
+        width: 40px;
+        height: 40px;
+        border-radius: 50%;
+        overflow: hidden;
+        background: var(--background-light);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        border: 2px solid var(--background-white);
+        position: relative;
+
+        &.avatar-sm {
+            width: 32px;
+            height: 32px;
+        }
+
+        &.overlap {
+            margin-left: -8px;
+        }
+
+        &.online::after {
+            content: '';
+            position: absolute;
+            bottom: 2px;
+            right: 2px;
+            width: 8px;
+            height: 8px;
+            background: #2ecc71;
+            border-radius: 50%;
+            border: 2px solid white;
+        }
+
+        img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .avatar-placeholder {
+            font-size: 14px;
+            font-weight: 600;
+            color: var(--text-secondary);
+
+            .avatar-sm & {
+                font-size: 12px;
+            }
+        }
+    }
+
+    // Search Section
+    .search-section {
+        padding: 0 20px 20px;
+        background: var(--primary-color);
+        margin-bottom: 0;
+
+        .search-input-group {
+            position: relative;
+
+            .search-icon {
+                position: absolute;
+                left: 16px;
+                top: 50%;
+                transform: translateY(-50%);
+                color: rgba(123, 45, 142, 0.6);
+                z-index: 2;
+            }
+
+            .search-input {
+                width: 80%;
+                padding: 14px 20px 14px 48px;
+                border: none;
+                border-radius: 25px;
+                background: rgba(255, 255, 255, 0.15);
+                backdrop-filter: blur(10px);
+                color: white;
+                font-size: 14px;
+                outline: none;
+                transition: all 0.3s ease;
+
+                &::placeholder {
+                    color: rgba(255, 255, 255, 0.7);
+                }
+
+                &:focus {
+                    background: rgba(255, 255, 255, 0.25);
+                    transform: translateY(-1px);
+                    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+                }
+            }
+        }
+    }
+
+    // Drivers List
+    .drivers-list {
+        padding: 24px 0 80px;
+        max-height: 400px;
+        overflow-y: auto;
+
+        &::-webkit-scrollbar {
+            width: 4px;
+        }
+
+        &::-webkit-scrollbar-track {
+            background: transparent;
+        }
+
+        &::-webkit-scrollbar-thumb {
+            background: var(--border-color);
+            border-radius: 2px;
+        }
+    }
+
+    // Driver Item
+    .driver-item {
+        display: flex;
+        align-items: flex-start;
+        padding: 16px 20px;
+        cursor: pointer;
+        transition: all 0.2s ease;
+        position: relative;
+        border-right: 3px solid transparent;
+
+        &:hover {
+            background: var(--background-light);
+            border-right-color: var(--secondary-color);
+        }
+
+        &:not(:last-child) {
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .driver-avatar {
+            position: relative;
+            margin-right: 16px;
+            flex-shrink: 0;
+
+            .notification-badge {
+                position: absolute;
+                top: -6px;
+                right: -6px;
+                background: var(--danger-color);
+                color: white;
+                font-size: 10px;
+                font-weight: 600;
+                padding: 2px 6px;
+                border-radius: 10px;
+                min-width: 16px;
+                text-align: center;
+                box-shadow: 0 2px 4px rgba(231, 76, 60, 0.3);
+            }
+        }
+
+        .driver-content {
+            flex: 1;
+            min-width: 0;
+
+            .driver-header {
+                display: flex;
+                justify-content: space-between;
+                align-items: flex-start;
+                margin-bottom: 4px;
+
+                .driver-name {
+                    font-size: 16px;
+                    font-weight: 600;
+                    color: var(--text-primary);
+                    margin: 0;
+                    line-height: 1.3;
+                }
+
+                .driver-timestamp {
+                    font-size: 12px;
+                    color: var(--text-secondary);
+                    white-space: nowrap;
+                    margin-left: 12px;
+                }
+            }
+
+            .driver-description {
+                font-size: 13px;
+                color: var(--text-secondary);
+                line-height: 1.4;
+                margin: 0;
+                display: -webkit-box;
+                -webkit-line-clamp: 2;
+                -webkit-box-orient: vertical;
+                overflow: hidden;
+            }
+        }
+    }
+
+    // Add Button
+    .add-button {
+        position: absolute;
+        bottom: 20px;
+        right: 20px;
+        width: 56px;
+        height: 56px;
+        background: var(--primary-color);
+        border: none;
+        border-radius: 28px;
+        color: white;
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        box-shadow: var(--shadow-medium);
+        transition: all 0.3s ease;
+
+        &:hover {
+            background: var(--primary-dark);
+            transform: translateY(-2px);
+            box-shadow: 0 6px 25px rgba(123, 45, 142, 0.4);
+        }
+
+        &:active {
+            transform: translateY(0);
+        }
+
+        svg {
+            width: 24px;
+            height: 24px;
+        }
+    }
+
+    // Responsive Design
+    @media (max-width: 480px) {
+        max-width: 100%;
+        border-radius: 0;
+
+        .widget-header {
+            border-radius: 0;
+            padding: 20px 16px 16px;
+
+            .widget-title {
+                font-size: 24px;
+            }
+        }
+
+        .search-section {
+            padding: 0 16px 16px;
+        }
+
+        .driver-item {
+            padding: 14px 16px;
+
+            .driver-content {
+                .driver-header {
+                    .driver-name {
+                        font-size: 15px;
+                    }
+                }
+
+                .driver-description {
+                    font-size: 12px;
+                }
+            }
+        }
+
+        .add-button {
+            bottom: 16px;
+            right: 16px;
+            width: 50px;
+            height: 50px;
+
+            svg {
+                width: 20px;
+                height: 20px;
+            }
+        }
+    }
+}
+
+// Plugin/SaaS Integration Styles
+.driver-widget-container {
+    display: flex;
+    justify-content: center;
+    padding: 20px;
+
+    &.fullwidth {
+        .driver-widget {
+            max-width: 100%;
+        }
+    }
+
+    &.compact {
+        .driver-widget {
+            max-width: 320px;
+
+            .drivers-list {
+                max-height: 300px;
+            }
+        }
+    }
+}

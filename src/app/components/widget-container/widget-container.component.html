@@ -1,0 +1,93 @@
+    <div 
+      class="chat-widget-container" 
+      [class.minimized]="widgetState.isMinimized"
+      [class.open]="widgetState.isOpen"
+      [attr.data-position]="config?.position || 'bottom-right'">
+      
+      <!-- MINIMIZED STATE: Chat Bubble -->
+      <div 
+        *ngIf="widgetState.isMinimized" 
+        class="chat-bubble"
+        (click)="toggleWidget()"
+        [style.background-color]="config?.theme?.primaryColor || '#6B46C1'">
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="white">
+          <path d="M12 2C6.48 2 2 6.48 2 12c0 1.54.36 2.98.97 4.29L1 23l6.71-1.97C9.02 21.64 10.46 22 12 22c5.52 0 10-4.48 10-10S17.52 2 12 2z"/>
+        </svg>
+      </div>
+
+      <!-- EXPANDED STATE: Full Widget -->
+      <div *ngIf="!widgetState.isMinimized" class="widget-expanded">
+        
+      <div class="widget-content" >
+
+        <div class="widget-header">
+
+<!-- Header Actions -->
+<div class="header-actions">
+  <img
+    src="assets/expand.svg"
+    class="expand-btn"
+    aria-label="Expand chat"
+  />
+
+  <img
+    src="assets/close.svg"
+    class="close-btn"
+    (click)="closeWidget()"
+    aria-label="Close chat"
+  />
+</div>
+
+
+        </div>
+        
+        <!-- view State -->
+
+          <ng-container [ngSwitch]="widgetState.currentView">
+            
+            <!-- Chat List Screen -->
+            <app-chat-list
+              *ngSwitchCase="ViewType.CHAT_LIST"
+              [config]="config"
+              [chats]="chats"
+              (chatSelected)="onChatSelected($event)"
+              (createGroup)="onManageGroup('')">
+            </app-chat-list>
+
+            <!-- Individual Conversation Screen -->
+            <app-conversation
+              *ngSwitchCase="ViewType.CONVERSATION"
+              [config]="config"
+              [messages]="messages$ | async"
+              (backToList)="goToChatList()"
+              (manageGroup)="onManageGroup('$event Original')">
+            </app-conversation>
+
+            <!-- Group Management Screen -->
+            <app-manage-group
+              *ngSwitchCase="ViewType.GROUP_MANAGEMENT"
+              (backToList)="goToChatList()"
+              (groupUpdated)="onGroupUpdated($event)">
+            </app-manage-group>
+
+              <!-- [groupId]="getCurrentGroupId()"
+              [config]="config" -->
+            <!-- Group Creation Screen 
+            <app-group-creation
+              *ngSwitchCase="ViewType.GROUP_CREATION"
+              [preSelectedUsers]="getPreSelectedUsers()"
+              [config]="config"
+              (groupCreated)="onGroupCreated($event)"
+              (cancel)="goBack()">
+            </app-group-creation>
+
+            <!-- Fallback for unknown views -->
+            <div *ngSwitchDefault class="error-view">
+              <p>Unknown view: {{ widgetState.currentView }}</p>
+              <button (click)="goToChatList()">Go to Chat List</button>
+            </div>
+
+          </ng-container>
+        </div>
+      </div>
+    </div>
