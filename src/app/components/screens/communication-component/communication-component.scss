@@ -1,0 +1,308 @@
+.communication-hub {
+    width: 100%;
+    max-width: 400px;
+    height: 100%;
+    background: white;
+    border-radius: 16px;
+    overflow: hidden;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+    position: relative;
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  
+
+    // Header
+    .header {
+        background: #7b2d8e;
+        padding: 16px 15px;
+        display: flex;
+        align-items: center;
+        gap: 7px;
+        color: white;
+
+        .back-btn {
+            background: none;
+            border: none;
+            color: white;
+            cursor: pointer;
+            padding: 4px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: background-color 0.2s;
+
+            &:hover {
+                background: rgba(255, 255, 255, 0.1);
+            }
+        }
+
+        .search-container {
+            flex: 1;
+            position: relative;
+
+            .search-icon {
+                position: absolute;
+                left: 16px;
+                top: 50%;
+                transform: translateY(-50%);
+                color: rgba(123, 45, 142, 0.6);
+                z-index: 2;
+            }
+
+            .search-input {
+                width: 80%;
+                padding: 12px 20px 12px 46px;
+                border: none;
+                border-radius: 20px;
+                background: rgba(255, 255, 255, 0.15);
+                backdrop-filter: blur(10px);
+                color: white;
+                font-size: 14px;
+                outline: none;
+
+                &::placeholder {
+                    color: rgba(255, 255, 255, 0.7);
+                }
+
+                &:focus {
+                    background: rgba(255, 255, 255, 0.25);
+                }
+            }
+        }
+    }
+
+    // Content
+    .content {
+        height: calc(100% - 80px);
+        position: relative;
+        overflow: hidden;
+    }
+
+    // Action Buttons
+    .actions {
+        padding: 10px;
+
+        .action-btn {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            width: 100%;
+            background: none;
+            border: none;
+            cursor: pointer;
+            text-align: left;
+            text-align: left;
+                font: normal normal 600 18px/24px Segoe UI;
+                letter-spacing: 0px;
+                color: #64266C;
+                opacity: 1;
+            transition: opacity 0.2s;
+            padding-bottom: 10px;
+            border-bottom: 1px solid #00000029;
+
+            &:hover {
+                opacity: 0.8;
+            }
+
+            &:not(:last-child) {
+                border-bottom: 1px solid #00000029;
+                margin-bottom: 4px;
+                padding-bottom: 10px;
+            }
+
+            .action-icon {
+                width: 20px;
+                height: 20px;
+                background: #f8f9fa;
+                border-radius: 50%;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                color: #7b2d8e;
+                flex-shrink: 0;
+            }
+
+            span {
+                font-weight: 500;
+            }
+        }
+    }
+
+    // Contacts List
+    .contacts-list {
+        height: calc(100% - 200px);
+        overflow-y: auto;
+        position: relative;
+        
+
+        // Hide default scrollbar
+        &::-webkit-scrollbar {
+            display: none;
+        }
+
+        -ms-overflow-style: none;
+        scrollbar-width: none;
+
+        .contact-item {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            cursor: pointer;
+            transition: background-color 0.2s;
+            border-bottom: 1px solid rgba(233, 236, 239, 0.5);
+
+            &:hover {
+                background: #f8f9fa;
+            }
+
+            &:last-child {
+                border-bottom: none;
+            }
+
+            // Contact Avatar
+            .contact-avatar {
+                width: 48px;
+                height: 48px;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                flex-shrink: 0;
+
+                &.team-avatar {
+                    background: #f8f9fa;
+                    border-radius: 50%;
+                    color: #7f8c8d;
+                }
+
+                .driver-avatar {
+                    width: 48px;
+                    height: 48px;
+                    background: #f8f9fa;
+                    border-radius: 50%;
+                    display: flex;
+                    align-items: center;
+                    justify-content: center;
+                    color: #7f8c8d;
+                    font-weight: 600;
+                    font-size: 18px;
+                    position: relative;
+
+                    &.online::after {
+                        content: '';
+                        position: absolute;
+                        bottom: 2px;
+                        right: 2px;
+                        width: 12px;
+                        height: 12px;
+                        background: #2ecc71;
+                        border-radius: 50%;
+                        border: 2px solid white;
+                    }
+
+                    .avatar-text {
+                        display: block;
+                    }
+                }
+            }
+
+            // Contact Name
+            .contact-name {
+                font-size: 16px;
+                font-weight: 500;
+                color: #2c3e50;
+                flex: 1;
+                font: normal normal bold 18px/24px Segoe UI;
+                    color: #64266C;
+                    opacity: 1;
+            }
+        }
+    }
+
+    // Custom Yellow Scrollbar
+    .custom-scrollbar {
+            position: absolute;
+            top: 200px;
+        right: 0;
+        width: 4px;
+        height: calc(100% - 200px);
+        background: rgba(255, 215, 0, 0.2);
+        pointer-events: none;
+
+        &::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            right: 0;
+            width: 4px;
+            height: 30%;
+            background: #ffd700;
+            border-radius: 2px;
+            animation: scrollIndicator 3s ease-in-out infinite;
+        }
+    }
+
+    // Responsive
+    @media (max-width: 480px) {
+        max-width: 100%;
+        height: 100vh;
+        border-radius: 0;
+
+        .header {
+            padding: 16px;
+        }
+
+        .actions {
+            padding: 16px;
+
+            .action-btn {
+                padding: 12px 0;
+
+                &:not(:last-child) {
+                    padding-bottom: 16px;
+                }
+
+                .action-icon {
+                    width: 36px;
+                    height: 36px;
+                }
+            }
+        }
+
+        .contacts-list .contact-item {
+            padding: 14px 16px;
+
+            .contact-avatar {
+                width: 44px;
+                height: 44px;
+
+                .driver-avatar {
+                    width: 44px;
+                    height: 44px;
+                    font-size: 16px;
+                }
+            }
+
+            .contact-name {
+                font-size: 15px;
+            }
+        }
+    }
+}
+
+// Animation for scroll indicator
+@keyframes scrollIndicator {
+    0% {
+        top: 0;
+        opacity: 0.6;
+    }
+
+    50% {
+        top: 35%;
+        opacity: 1;
+    }
+
+    100% {
+        top: 70%;
+        opacity: 0.6;
+    }
+}

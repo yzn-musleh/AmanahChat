@@ -1,5 +1,10 @@
 import { CommonModule } from '@angular/common';
-import { Component, ElementRef, EventEmitter, Input, Output, ViewChild } from '@angular/core';
+import { Component, ElementRef, EventEmitter, Input, Output, ViewChild, OnChanges, SimpleChanges } from '@angular/core';
+import { FormsModule } from '@angular/forms';
+import { AuthService } from '../../../services/auth.service';
+import { RoomService } from '../../../services/room.service';
+import { takeUntil } from 'rxjs';
+import { WorkspaceUser } from '../../widget-container/widget-container.component';
 
 export interface TeamMember {
   id: string;
@@ -15,18 +20,30 @@ export interface GroupCreation {
   selectedMembers: TeamMember[];
 }
 
+export interface AddRoomMemberRequest {
+  userId: string;
+  isAdmin: boolean;
+}
+
+
+export interface CreateRoomRequest {
+  title: string;
+  description: string;
+  workspaceId: string;
+  roomMembers: AddRoomMemberRequest[];
+}
 
 @Component({
   selector: 'app-manage-group',
-  imports: [CommonModule],
+  imports: [CommonModule, FormsModule],
   standalone: true,
   templateUrl: './manage-group.html',
   styleUrl: './manage-group.scss'
 })
-export class ManageGroup {
+export class ManageGroup implements OnChanges {
   @Input() title: string = 'Select Team Members';
   @Input() searchPlaceholder: string = 'Search by driver name or group';
-  @Input() members: TeamMember[] = [];
+  @Input() workspaceUsers: WorkspaceUser[] | null = [];
   @Input() allowGroupCreation: boolean = true;
   @Input() showNewGroupSection: boolean = true;
   @Input() maxSelections?: number;
@@ -41,53 +58,26 @@ export class ManageGroup {
   searchQuery: string = '';
   newGroupName: string = '';
   selectedMembers: Set<string> = new Set();
+  members: TeamMember[] = [];
   filteredMembers: TeamMember[] = [];
   showGroupNameInput: boolean = false;
 
-  ngOnInit() {
-    // Sample data if no members provided
-    if (this.members.length === 0) {
-      this.members = [
-        {
-          id: 'team-1',
-          name: 'Team vv1vvvvvbbbb1',
-          type: 'team',
-          memberCount: 8
-        },
-        {
-          id: 'team-2',
-          name: 'Team aa11',
-          type: 'team',
-          memberCount: 5
-        },
-        {
-          id: 'driver-1',
-          name: 'driver11',
-          type: 'driver',
-          isOnline: true
-        },
-        {
-          id: 'driver-2',
-          name: 'driver022',
-          type: 'driver',
-          isOnline: false
-        },
-        {
-          id: 'driver-3',
-          name: 'driver03333',
-          type: 'driver',
-          isOnline: true
-        },
-        {
-          id: 'team-3',
-          name: 'Team aa0111',
-          type: 'team',
-          memberCount: 12
-        }
-      ];
-    }
+  destroy$ = new EventEmitter<void>();
 
-    this.filteredMembers = [...this.members];
+  constructor(private authService: AuthService, private roomService: RoomService) {}
+
+  ngOnInit() {}
+
+  ngOnChanges(changes: SimpleChanges): void {
+    if (changes['workspaceUsers']) {
+      const users = this.workspaceUsers || [];
+      this.members = users.map(u => ({
+        id: u.id,
+        name: u.name || `${u.firstName ?? ''} ${u.lastName ?? ''}`.trim(),
+        type: 'team'
+      }));
+      this.filteredMembers = [...this.members];
+    }
   }
 
   onBackClick() {
@@ -131,10 +121,30 @@ export class ManageGroup {
   }
 
   createGroup() {
+    const request: CreateRoomRequest = {
+      title: this.newGroupName || 'New Group',
+      description: '',
+      workspaceId: this.authService.getCurrentUser().workspaceId,
+      roomMembers: this.selectedMembers.size > 0 ? Array.from(this.selectedMembers).map(id => ({ userId: id, isAdmin: false })) : []
+    };
+
+    this.roomService.createChatRoom(request)
+      .pipe(takeUntil(this.destroy$))
+      .subscribe({
+        next: (roomId) => {
+          console.log('Room created successfully:', roomId);
+          this.backToList.emit();
+        },
+        error: (error) => {
+          console.error('Error creating room:', error);
+          // this.error = 'Failed to create room. Please try again.';
+          // this.isSubmitting = false;
+        }
+      });
   }
 
   canCreateGroup(): boolean {
-    return false
+    return true
   }
 
   getSelectedCount(): number {
@@ -161,12 +171,11 @@ export class ManageGroup {
   }
 
   private filterMembers() {
-    if (!this.searchQuery.trim()) {
+    const query = this.searchQuery.trim().toLowerCase();
+    if (!query) {
       this.filteredMembers = [...this.members];
       return;
     }
-
-    const query = this.searchQuery.toLowerCase();
     this.filteredMembers = this.members.filter(member =>
       member.name.toLowerCase().includes(query) ||
       member.type.toLowerCase().includes(query)

@@ -1,17 +1,19 @@
 import { Component, EventEmitter, Input, Output } from '@angular/core';
 import { ChatWidgetConfig } from '../../widget-container/widget-container.component';
 import { CommonModule } from '@angular/common';
-import { RoomService } from './services/room.service';
 import { Subject, takeUntil } from 'rxjs';
+import { RoomService } from '../../../services/room.service';
 
 
 export interface ChatItem {
   chatRoomId: string;
+  roomMemberId: string
   title: string;
   lastMessage: string;
   avatarUrl?: string;
   lastActionDate: Date;
   totalMessages?: number;
+  type?: 'group' | 'direct';
   isOnline?: boolean;
 }
 
@@ -35,7 +37,7 @@ export class ChatListComponent {
 
   @Output() onSearch = new EventEmitter<string>();
   @Output() chatSelected = new EventEmitter<ChatItem>();
-  @Output() createGroup = new EventEmitter<void>();
+  @Output() onAdd = new EventEmitter<void>();
 
   actionTimeout: any;
 
@@ -45,44 +47,6 @@ export class ChatListComponent {
 
   // Sample data for demonstration
   ngOnInit() {
-  this.chats =[
-      {
-        chatRoomId: 'room-1',
-        title: 'John Doe',
-        lastMessage: 'Hey, are we still on for today?',
-        avatarUrl: 'https://i.pravatar.cc/40?img=5',
-        lastActionDate: new Date(Date.now() - 1000 * 60 * 2), // 2 minutes ago
-        totalMessages: 42,
-        isOnline: true,
-      },
-      {
-        chatRoomId: 'room-2',
-        title: 'Jane Smith',
-        lastMessage: 'Sure, I’ll send you the file shortly.',
-        avatarUrl: 'https://i.pravatar.cc/40?img=12',
-        lastActionDate: new Date(Date.now() - 1000 * 60 * 15), // 15 minutes ago
-        totalMessages: 13,
-        isOnline: false,
-      },
-      {
-        chatRoomId: 'room-3',
-        title: 'Team Project',
-        lastMessage: 'Meeting at 10 AM tomorrow.',
-        avatarUrl: 'https://i.pravatar.cc/40?img=33',
-        lastActionDate: new Date(Date.now() - 1000 * 60 * 60), // 1 hour ago
-        totalMessages: 128,
-        isOnline: true,
-      },
-      {
-        chatRoomId: 'room-4',
-        title: 'Driver Support',
-        lastMessage: 'Your driver has arrived.',
-        avatarUrl: 'https://i.pravatar.cc/40?img=44',
-        lastActionDate: new Date(Date.now() - 1000 * 60 * 5), // 5 minutes ago
-        totalMessages: 8,
-        isOnline: false,
-      },
-    ];
   }
 
   ngOnDestroy(): void {
@@ -114,7 +78,7 @@ export class ChatListComponent {
   }
 
   addNew() {
-    this.createGroup.emit();
+    this.onAdd.emit();
   }
 
   getAvatarText(name: string): string {

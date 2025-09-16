@@ -51,7 +51,7 @@
               [config]="config"
               [chats]="chats"
               (chatSelected)="onChatSelected($event)"
-              (createGroup)="onManageGroup('')">
+              (onAdd)="onAdd()">
             </app-chat-list>
 
             <!-- Individual Conversation Screen -->
@@ -59,16 +59,25 @@
               *ngSwitchCase="ViewType.CONVERSATION"
               [config]="config"
               [messages]="messages$ | async"
-              (backToList)="goToChatList()"
-              (manageGroup)="onManageGroup('$event Original')">
+              [selectedChat]="selectedChat"
+              (backToList)="goToChatList()">
             </app-conversation>
 
             <!-- Group Management Screen -->
             <app-manage-group
-              *ngSwitchCase="ViewType.GROUP_MANAGEMENT"
+              *ngSwitchCase="ViewType.GROUP_CREATION"
+              [workspaceUsers]="workspaceUsers$ | async"
               (backToList)="goToChatList()"
+              (selectedChat)="selectedChat"
               (groupUpdated)="onGroupUpdated($event)">
             </app-manage-group>
+
+            <app-communication-component
+              *ngSwitchCase="ViewType.COMMUNICATION_HUB"
+              [chats]="chats"
+              (backToList)="goToChatList()"
+              (onGroupCreation)="onCreateGroup()">
+            </app-communication-component>
 
               <!-- [groupId]="getCurrentGroupId()"
               [config]="config" -->

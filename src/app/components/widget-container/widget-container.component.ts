@@ -6,9 +6,11 @@ import { CommonModule } from '@angular/common';
 import { ChatItem, ChatListComponent } from "../screens/chat-list.component/chat-list.component";
 import { ChatMessage, ConversationComponent } from "../screens/conversation.component/conversation.component";
 import { ManageGroup } from "../screens/manage-group/manage-group";
-import { RoomService } from '../screens/chat-list.component/services/room.service';
 import { ApiService } from '../../services/api.service';
 import { BehaviorSubject } from 'rxjs';
+import { RoomService } from '../../services/room.service';
+import { CommunicationComponent } from '../screens/communication-component/communication-component';
+import { AuthService } from '../../services/auth.service';
 
 // Widget configuration interface
 export interface ChatWidgetConfig {
@@ -22,9 +24,17 @@ export interface ChatWidgetConfig {
   // ... other config options
 }
 
+export interface WorkspaceUser {
+  id: string;
+  firstName: string;  
+  lastName: string;
+  name: string;
+  isAdmin: boolean;
+}
+
 @Component({
   selector: 'chat-widget',
-  imports: [CommonModule, ChatListComponent, ConversationComponent, ManageGroup],
+  imports: [CommonModule, ChatListComponent, ConversationComponent, ManageGroup, CommunicationComponent],
   templateUrl: 'widget-container.component.html',
   styleUrls: ['./widget-container.component.scss']
 })
@@ -37,12 +47,16 @@ export class ChatWidgetComponent implements OnInit, OnDestroy {
 
   private destroy$ = new Subject<void>();
 
+  selectedChat!: ChatItem
 
   chats: ChatItem[] = []
   private messagesSubject = new BehaviorSubject<any[]>([]);
   messages$ = this.messagesSubject.asObservable();
 
-  constructor(private navigationService: NavigationService, private roomService: RoomService, private apiService: ApiService) {
+  private workspaceUsersSubject = new BehaviorSubject<WorkspaceUser[]>([]);
+  workspaceUsers$ = this.workspaceUsersSubject.asObservable();
+
+  constructor(private navigationService: NavigationService, private authService: AuthService, private roomService: RoomService, private apiService: ApiService) {
     // Initialize with current state
     this.widgetState = this.navigationService.currentState;
   }
@@ -71,7 +85,7 @@ export class ChatWidgetComponent implements OnInit, OnDestroy {
       .pipe(takeUntil(this.destroy$))
       .subscribe({
         next: (rooms) => {
-          this.chats = rooms;
+          this.chats = [...rooms];
           console.log(this.chats);
 
           // if (this.isConnected) {
@@ -108,9 +122,6 @@ export class ChatWidgetComponent implements OnInit, OnDestroy {
   }
 
 
-
-
-
   // ===========================================
   // WIDGET VISIBILITY METHODS
   // ===========================================
@@ -136,17 +147,19 @@ export class ChatWidgetComponent implements OnInit, OnDestroy {
   // ===========================================
 
   onChatSelected(chat: ChatItem): void {
-    // this.messagesSubject.next([]);
+    this.selectedChat = chat
+    this.messagesSubject.next([]);
     this.navigationService.openChat(chat.chatRoomId);
-    // this.loadMessages(chat.chatRoomId)
+    this.loadMessages(chat.chatRoomId)
   }
 
   onCreateGroup(): void {
+    this.loadUsers()
     this.navigationService.openGroupCreation();
   }
 
-  onManageGroup(groupId: string): void {
-    this.navigationService.openGroupManagement(groupId);
+  onAdd(): void {
+    this.navigationService.goToCommunicationHub();
   }
 
   onGroupCreated(group: any): void {
@@ -172,6 +185,19 @@ export class ChatWidgetComponent implements OnInit, OnDestroy {
   /**
    * Get pre-selected users for group creation
    */
+
+
+  loadUsers() {
+    this.apiService.getUsersByWorkspace(this.authService.getCurrentUser().workspaceId).subscribe({
+      next: (users) => {
+        this.workspaceUsersSubject.next([...users]);
+      },
+      error: (err) => {
+        console.error('Failed to load users:', err);
+      }
+    });
+  }
+
   getPreSelectedUsers(): string[] | undefined {
     return this.widgetState.currentData?.previousData;
   }

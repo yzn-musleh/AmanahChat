@@ -7,6 +7,7 @@ export enum ViewType {
   CONVERSATION = 'conversation',
   GROUP_MANAGEMENT = 'group-management',
   GROUP_CREATION = 'group-creation',
+  COMMUNICATION_HUB = 'communication-hub'
 }
 
 export interface NavigationData {
@@ -181,6 +182,10 @@ export class NavigationService {
    */
   goToChatList(): void {
     this.navigateTo(ViewType.CHAT_LIST);
+  }
+
+  goToCommunicationHub(): void {
+    this.navigateTo(ViewType.COMMUNICATION_HUB);
   }
 
   /**

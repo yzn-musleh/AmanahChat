@@ -64,13 +64,9 @@ export class ConversationComponent implements AfterViewChecked {
   @ViewChild('messagesContainer', { static: false }) messagesContainer!: ElementRef;
   @ViewChild('messageInput', { static: false }) messageInput!: ElementRef;
 
-
   private shouldScrollToBottom = false;
 
   messageForm: FormGroup;
-
-  currentRoomMemberId: string = ''
-
 
   private destroy$ = new Subject<void>();
 
@@ -90,43 +86,43 @@ export class ConversationComponent implements AfterViewChecked {
   ngOnInit() {
     console.log("messsages from conversation", this.messages);
 
-    if (this.messages?.length == 0 || this.messages == null) {
-       this.messages = [
-        {
-          id: '1',
-          message: 'Hey! How are you doing?',
-          timestamp: new Date(Date.now() - 1000 * 60 * 10), // 10 minutes ago
-          isFromCurrentUser: false,
-          senderName: 'Driver',
-          senderAvatar: 'https://i.pravatar.cc/40?img=12',
-          status: 'delivered',
-        },
-        {
-          id: '2',
-          message: 'I’m good, thanks! On my way now.',
-          timestamp: new Date(Date.now() - 1000 * 60 * 8), // 8 minutes ago
-          isFromCurrentUser: true,
-          status: 'sent',
-        },
-        {
-          id: '3',
-          message: 'Perfect, I’ll wait near the main entrance.',
-          timestamp: new Date(Date.now() - 1000 * 60 * 5), // 5 minutes ago
-          isFromCurrentUser: false,
-          isFromDriver: true,
-          senderName: 'Driver',
-          senderAvatar: 'https://i.pravatar.cc/40?img=32',
-          status: 'read',
-        },
-        {
-          id: '4',
-          message: 'Got it 👍 see you in 5 minutes.',
-          timestamp: new Date(Date.now() - 1000 * 60 * 3), // 3 minutes ago
-          isFromCurrentUser: true,
-          status: 'sending',
-        },
-      ];
-    }
+    // if (this.messages?.length == 0 || this.messages == null) {
+    //    this.messages = [
+    //     {
+    //       id: '1',
+    //       message: 'Hey! How are you doing?',
+    //       timestamp: new Date(Date.now() - 1000 * 60 * 10), // 10 minutes ago
+    //       isFromCurrentUser: false,
+    //       senderName: 'Driver',
+    //       senderAvatar: 'https://i.pravatar.cc/40?img=12',
+    //       status: 'delivered',
+    //     },
+    //     {
+    //       id: '2',
+    //       message: 'I’m good, thanks! On my way now.',
+    //       timestamp: new Date(Date.now() - 1000 * 60 * 8), // 8 minutes ago
+    //       isFromCurrentUser: true,
+    //       status: 'sent',
+    //     },
+    //     {
+    //       id: '3',
+    //       message: 'Perfect, I’ll wait near the main entrance.',
+    //       timestamp: new Date(Date.now() - 1000 * 60 * 5), // 5 minutes ago
+    //       isFromCurrentUser: false,
+    //       isFromDriver: true,
+    //       senderName: 'Driver',
+    //       senderAvatar: 'https://i.pravatar.cc/40?img=32',
+    //       status: 'read',
+    //     },
+    //     {
+    //       id: '4',
+    //       message: 'Got it 👍 see you in 5 minutes.',
+    //       timestamp: new Date(Date.now() - 1000 * 60 * 3), // 3 minutes ago
+    //       isFromCurrentUser: true,
+    //       status: 'sending',
+    //     },
+    //   ];
+    // }
   }
 
   ngAfterViewChecked() {
@@ -141,12 +137,17 @@ export class ConversationComponent implements AfterViewChecked {
     const messageText = this.messageForm.get('message')?.value?.trim();
   console.log("message text: ", messageText);
 
+  console.log("message form: ", this.messageForm);
+  console.log("selectedChat: ", this.selectedChat)
+  
+  
+  
 
-    if (this.messageForm.invalid || !this.selectedChat || !this.currentRoomMemberId) return;
+    if (this.messageForm.invalid || !this.selectedChat ) return;
 
     this.isSending = true;
     const request: SendMessageRequest = {
-      roomMemberId: this.currentRoomMemberId,
+      roomMemberId: this.selectedChat.roomMemberId,
       chatRoomId: this.selectedChat?.chatRoomId,
       message: messageText
     };
@@ -159,7 +160,7 @@ export class ConversationComponent implements AfterViewChecked {
             message: messageText,
             senderName: 'You',
             timestamp: new Date(),
-            roomMemberId: this.currentRoomMemberId!,
+            roomMemberId: this.selectedChat?.roomMemberId,
             isCurrentUser: true
           });
           this.messageForm.reset();
