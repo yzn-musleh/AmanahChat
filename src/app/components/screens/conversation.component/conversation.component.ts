@@ -41,12 +41,6 @@ export interface SendMessageRequest {
 export class ConversationComponent implements AfterViewChecked {
 
   @Input() config: any
-  @Input() user: ConversationUser = {
-    id: 'driver-4',
-    name: 'Driver 4',
-    isOnline: true,
-    role: 'driver'
-  };
 
   @Input() messages: any[] | null = [];
   
@@ -55,7 +49,7 @@ export class ConversationComponent implements AfterViewChecked {
   @Input() allowFileUpload: boolean = true;
   @Input() maxHeight: string = '600px';
   @Input() isTyping: boolean = false;
-  @Input() selectedChat: ChatItem | null = null;
+  @Input() selectedChat!: ChatItem ;
 
   @Output() onSendMessage = new EventEmitter<string>();
   @Output() onFileUpload = new EventEmitter<File>();
@@ -161,7 +155,8 @@ export class ConversationComponent implements AfterViewChecked {
             senderName: 'You',
             timestamp: new Date(),
             roomMemberId: this.selectedChat?.roomMemberId,
-            isCurrentUser: true
+            isFromCurrentUser: true,
+            status: 'sent'
           });
           this.messageForm.reset();
           this.shouldScrollToBottom = true;

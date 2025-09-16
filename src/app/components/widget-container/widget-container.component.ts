@@ -107,7 +107,18 @@ export class ChatWidgetComponent implements OnInit, OnDestroy {
       .pipe(takeUntil(this.destroy$))
       .subscribe({
         next: (messages) => {
-          this.messagesSubject.next([...messages]);
+          const normalized = (messages || []).map((m: any) => {
+            const timestamp = m.timestamp ? new Date(m.timestamp) : (m.lastActionDate ? new Date(m.lastActionDate) : new Date());
+            const isFromCurrentUser = typeof m.isFromCurrentUser === 'boolean'
+              ? m.isFromCurrentUser
+              : (typeof m.isCurrentUser === 'boolean' ? m.isCurrentUser : (m.roomMemberId && this.selectedChat?.roomMemberId ? m.roomMemberId === this.selectedChat.roomMemberId : false));
+            return {
+              ...m,
+              timestamp,
+              isFromCurrentUser
+            };
+          });
+          this.messagesSubject.next(normalized);
           // messages.forEach(msg => {
           //   if (this.currentRoomMember === msg.roomMemberId) {
           //     msg.isCurrentUser = true;

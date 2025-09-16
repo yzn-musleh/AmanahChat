@@ -8,22 +8,21 @@
     </button>
 
     <div class="user-info">
-      <div class="user-avatar" [class.online]="user.isOnline && showOnlineStatus">
+      <div class="user-avatar" [class.online]="selectedChat.isOnline && showOnlineStatus">
         <img 
-          *ngIf="user.avatar; else avatarPlaceholder" 
-          [src]="user.avatar" 
-          [alt]="user.name"
+          [src]="getAvatarText(selectedChat.title)" 
+          [alt]="selectedChat.title"
           class="avatar-image">
         <ng-template #avatarPlaceholder>
-          <div class="avatar-placeholder">{{ getAvatarText(user.name) }}</div>
+          <div class="avatar-placeholder">{{ getAvatarText(selectedChat.title) }}</div>
         </ng-template>
       </div>
       
       <div class="user-details">
-        <h3 class="user-name">{{ user.name }}</h3>
-        <span class="user-status" *ngIf="showOnlineStatus">
+        <h3 class="user-name">{{ selectedChat.title }}</h3>
+        <!-- <span class="user-status" *ngIf="showOnlineStatus">
           {{ isTyping ? 'typing...' : (user.isOnline ? 'Online' : 'Offline') }}
-        </span>
+        </span> -->
       </div>
     </div>
 
