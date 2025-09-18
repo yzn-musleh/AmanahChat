@@ -21,6 +21,4 @@ export class App {
     enableGuestUsers: true
   }
   protected title = 'ChatWidgetPlugin';
-
-
 }

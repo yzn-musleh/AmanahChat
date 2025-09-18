@@ -3,6 +3,7 @@ import { ChatWidgetConfig } from '../../widget-container/widget-container.compon
 import { CommonModule } from '@angular/common';
 import { Subject, takeUntil } from 'rxjs';
 import { RoomService } from '../../../services/room.service';
+import { SignalRService } from '../../../services/signalr.service';
 
 
 export interface ChatItem {
@@ -42,11 +43,75 @@ export class ChatListComponent {
   actionTimeout: any;
 
   searchQuery: string = '';
+  isConnected = true;
+  shouldScrollToBottom = false;
 
-  constructor(private roomService: RoomService){}
+  constructor(private roomService: RoomService, private signalRService: SignalRService){}
 
   // Sample data for demonstration
   ngOnInit() {
+
+    this.initializeSignalR();
+
+    if (this.isConnected) {
+      this.chats.forEach(room => {
+        this.signalRService.joinRoom(room.chatRoomId);
+      });
+    }
+  }
+
+  private initializeSignalR(): void {
+    this.signalRService.startConnection();
+    this.signalRService.connectionStatus$
+      .pipe(takeUntil(this.destroy$))
+      .subscribe(status => {
+        this.isConnected = status;
+        console.log(`SignalR connection status: ${status}`);
+      });
+    this.signalRService.messageReceived$
+      .pipe(takeUntil(this.destroy$))
+      .subscribe(message => {
+
+        console.log(`New message received in room ${message.chatRoomId}:`, message);
+
+        const roomIndex = this.chats.findIndex(r => r.chatRoomId === message.chatRoomId);
+
+        if (roomIndex !== -1) {
+          this.chats[roomIndex].lastActionDate = message.lastActionDate;
+
+          // Move to top
+          const [room] = this.chats.splice(roomIndex, 1);
+          this.chats.unshift(room);
+        }
+
+        // if (this.selectedRoom && message.chatRoomId === this.selectedRoom.chatRoomId && message.roomMemberId != this.selectedRoom.roomMemberId) {
+        //   this.messages.push({
+        //     id: message.id,
+        //     message: message.message,
+        //     senderName: message.senderName,
+        //     timestamp: new Date(message.timestamp),
+        //     roomMemberId: message.roomMemberId,
+        //     isCurrentUser: false,
+        //   });
+        //   this.shouldScrollToBottom = true;
+
+
+        // }
+      });
+
+    // this.signalRService.typingIndicator$
+    //   .pipe(takeUntil(this.destroy$))
+    //   .subscribe(typing => {
+    //     console.log('Received typing indicator:', typing);
+
+    //     if (typing.isTyping) {
+    //       if (!this.typingUsers.includes(typing.userName)) this.typingUsers.push(typing.userName);
+    //     } else {
+    //       this.typingUsers = this.typingUsers.filter(user => user !== typing.userName);
+    //     }
+
+    //     this.shouldScrollToBottom = true;
+    //   });
   }
 
   ngOnDestroy(): void {

@@ -9,6 +9,7 @@ import { ManageGroup } from "../screens/manage-group/manage-group";
 import { ApiService } from '../../services/api.service';
 import { BehaviorSubject } from 'rxjs';
 import { RoomService } from '../../services/room.service';
+import { SignalRService } from '../../services/signalr.service';
 import { CommunicationComponent } from '../screens/communication-component/communication-component';
 import { AuthService } from '../../services/auth.service';
 
@@ -56,7 +57,7 @@ export class ChatWidgetComponent implements OnInit, OnDestroy {
   private workspaceUsersSubject = new BehaviorSubject<WorkspaceUser[]>([]);
   workspaceUsers$ = this.workspaceUsersSubject.asObservable();
 
-  constructor(private navigationService: NavigationService, private authService: AuthService, private roomService: RoomService, private apiService: ApiService) {
+  constructor(private navigationService: NavigationService, private authService: AuthService, private roomService: RoomService, private apiService: ApiService, private signalRService: SignalRService) {
     // Initialize with current state
     this.widgetState = this.navigationService.currentState;
   }
@@ -69,6 +70,26 @@ export class ChatWidgetComponent implements OnInit, OnDestroy {
       });
 
       this.loadChatRooms()
+
+      // Start SignalR connection and subscribe to incoming messages
+      this.signalRService.startConnection().then(() => {
+        // Connected
+      }).catch(err => console.error('SignalR start error:', err));
+
+      this.signalRService.messageReceived$
+        .pipe(takeUntil(this.destroy$))
+        .subscribe((msg: any) => {
+          if (!this.selectedChat) return;
+          if (msg.chatRoomId !== this.selectedChat.chatRoomId) return;
+
+          const normalized = {
+            ...msg,
+            timestamp: msg.timestamp ? new Date(msg.timestamp) : (msg.lastActionDate ? new Date(msg.lastActionDate) : new Date()),
+            isFromCurrentUser: typeof msg.isFromCurrentUser === 'boolean' ? msg.isFromCurrentUser : (typeof msg.isCurrentUser === 'boolean' ? msg.isCurrentUser : (msg.roomMemberId === this.selectedChat.roomMemberId))
+          };
+          const current = this.messagesSubject.getValue();
+          this.messagesSubject.next([...(current || []), normalized]);
+        });
   }
 
   ngOnDestroy(): void {
@@ -88,11 +109,7 @@ export class ChatWidgetComponent implements OnInit, OnDestroy {
           this.chats = [...rooms];
           console.log(this.chats);
 
-          // if (this.isConnected) {
-          //   this.chats.forEach(room => {
-          //     this.signalRService.joinRoom(room.chatRoomId);
-          //   });
-          // }
+          
         },
         error: (error) => {
           console.error('Error loading chat rooms:', error);
@@ -162,6 +179,9 @@ export class ChatWidgetComponent implements OnInit, OnDestroy {
     this.messagesSubject.next([]);
     this.navigationService.openChat(chat.chatRoomId);
     this.loadMessages(chat.chatRoomId)
+
+    // Join SignalR room for real-time updates
+    this.signalRService.joinRoom(chat.chatRoomId).catch(err => console.error('Join room failed:', err));
   }
 
   onCreateGroup(): void {

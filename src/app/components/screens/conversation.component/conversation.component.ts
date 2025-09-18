@@ -66,7 +66,6 @@ export class ConversationComponent implements AfterViewChecked {
 
   // Real-time features
   typingUsers: string[] = [];
-  isConnected = true;
   isLoading = false;
   isSending = false;
 
@@ -79,44 +78,6 @@ export class ConversationComponent implements AfterViewChecked {
 
   ngOnInit() {
     console.log("messsages from conversation", this.messages);
-
-    // if (this.messages?.length == 0 || this.messages == null) {
-    //    this.messages = [
-    //     {
-    //       id: '1',
-    //       message: 'Hey! How are you doing?',
-    //       timestamp: new Date(Date.now() - 1000 * 60 * 10), // 10 minutes ago
-    //       isFromCurrentUser: false,
-    //       senderName: 'Driver',
-    //       senderAvatar: 'https://i.pravatar.cc/40?img=12',
-    //       status: 'delivered',
-    //     },
-    //     {
-    //       id: '2',
-    //       message: 'I’m good, thanks! On my way now.',
-    //       timestamp: new Date(Date.now() - 1000 * 60 * 8), // 8 minutes ago
-    //       isFromCurrentUser: true,
-    //       status: 'sent',
-    //     },
-    //     {
-    //       id: '3',
-    //       message: 'Perfect, I’ll wait near the main entrance.',
-    //       timestamp: new Date(Date.now() - 1000 * 60 * 5), // 5 minutes ago
-    //       isFromCurrentUser: false,
-    //       isFromDriver: true,
-    //       senderName: 'Driver',
-    //       senderAvatar: 'https://i.pravatar.cc/40?img=32',
-    //       status: 'read',
-    //     },
-    //     {
-    //       id: '4',
-    //       message: 'Got it 👍 see you in 5 minutes.',
-    //       timestamp: new Date(Date.now() - 1000 * 60 * 3), // 3 minutes ago
-    //       isFromCurrentUser: true,
-    //       status: 'sending',
-    //     },
-    //   ];
-    // }
   }
 
   ngAfterViewChecked() {
