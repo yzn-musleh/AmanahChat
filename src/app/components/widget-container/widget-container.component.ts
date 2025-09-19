@@ -89,9 +89,7 @@ export class ChatWidgetComponent implements OnInit, OnDestroy {
 
           // Only add message to current conversation if it's the selected chat
           if (!this.selectedChat) return;
-          if (msg.chatRoomId === this.selectedChat.chatRoomId) return;
-
-          console.log("messge shoudl not be here", msg, "\n", this.selectedChat);
+          if (msg.chatRoomId !== this.selectedChat.chatRoomId) return;
           
 
           const normalized = {

@@ -1,16 +1,17 @@
 import { CommonModule } from '@angular/common';
-import { Component, EventEmitter, Input, Output } from '@angular/core';
+import { Component, EventEmitter, Input, Output, OnChanges, SimpleChanges } from '@angular/core';
+import { FormsModule } from '@angular/forms';
 import { ChatItem } from '../chat-list.component/chat-list.component';
 import { ApiService } from '../../../services/api.service';
 import { WorkspaceUser } from '../../widget-container/widget-container.component';
 
 @Component({
   selector: 'app-communication-component',
-  imports: [CommonModule, ],
+  imports: [CommonModule, FormsModule],
   templateUrl: './communication-component.html',
   styleUrl: './communication-component.scss'
 })
-export class CommunicationComponent {
+export class CommunicationComponent implements OnChanges {
 
    @Input() workspaceUsers: WorkspaceUser[] | null = [];
  // @Input() chats: ChatItem[] = [];
@@ -21,22 +22,37 @@ export class CommunicationComponent {
   @Output() backToList = new EventEmitter<void>();
 
   searchQuery: string = '';
+  filteredUsers: WorkspaceUser[] = [];
 
   constructor(private apiService: ApiService) {}
 
+  ngOnChanges(changes: SimpleChanges): void {
+    if (changes['workspaceUsers']) {
+      this.filteredUsers = [...(this.workspaceUsers || [])];
+      this.filterUsers();
+    }
+  }
 
   onBack() {
     this.backToList.emit();
   }
 
   onSearch() {
-    // if (this.searchQuery.trim()) {
-    //   this.filteredContacts = this.contacts.filter(contact =>
-    //     contact.name.toLowerCase().includes(this.searchQuery.toLowerCase())
-    //   );
-    // } else {
-    //   this.filteredContacts = [...this.contacts];
-    // }
+    this.filterUsers();
+  }
+
+  private filterUsers() {
+    if (!this.searchQuery.trim()) {
+      this.filteredUsers = [...(this.workspaceUsers || [])];
+      return;
+    }
+
+    const query = this.searchQuery.toLowerCase();
+    this.filteredUsers = (this.workspaceUsers || []).filter(user =>
+      (user.username || '').toLowerCase().includes(query) ||
+      (user.firstName || '').toLowerCase().includes(query) ||
+      (user.lastName || '').toLowerCase().includes(query)
+    );
   }
 
   onNewDirectChat (){}

@@ -66,7 +66,10 @@ export class ManageGroup implements OnChanges {
 
   constructor(private authService: AuthService, private roomService: RoomService) {}
 
-  ngOnInit() {}
+  ngOnInit() {
+    // Initialize filtered members
+    this.filteredMembers = [...this.members];
+  }
 
   ngOnChanges(changes: SimpleChanges): void {
     if (changes['workspaceUsers']) {

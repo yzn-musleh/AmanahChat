@@ -34,7 +34,7 @@
   <div class="drivers-list">
     <div 
       class="driver-item" 
-      *ngFor="let chat of chats"
+      *ngFor="let chat of filteredChats"
       (click)="selectChat(chat)">
       
       <div class="driver-avatar" >

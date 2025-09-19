@@ -16,7 +16,7 @@
         type="text" 
         class="search-input" 
         placeholder="Search by driver name or group"
-        (ngModel)="searchQuery"
+        [(ngModel)]="searchQuery"
         (input)="onSearch()">
     </div>
   </div>
@@ -64,7 +64,7 @@
     <div class="contacts-list">
       <div 
         class="contact-item"
-        *ngFor="let user of workspaceUsers"
+        *ngFor="let user of filteredUsers"
         (click)="chatWithUser(user.id)">
         
         <!-- Contact Avatar -->

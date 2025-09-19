@@ -1,4 +1,4 @@
-import { Component, EventEmitter, Input, Output } from '@angular/core';
+import { Component, EventEmitter, Input, Output, OnChanges, SimpleChanges } from '@angular/core';
 import { ChatWidgetConfig } from '../../widget-container/widget-container.component';
 import { CommonModule } from '@angular/common';
 import { Subject, takeUntil } from 'rxjs';
@@ -23,7 +23,7 @@ export interface ChatItem {
   templateUrl: './chat-list.component.html',
   styleUrl: './chat-list.component.scss'
 })
-export class ChatListComponent {
+export class ChatListComponent implements OnChanges {
 
   private destroy$ = new Subject<void>();
   
@@ -44,6 +44,7 @@ export class ChatListComponent {
   searchQuery: string = '';
   isConnected = true;
   shouldScrollToBottom = false;
+  filteredChats: ChatItem[] = [];
 
   constructor(private roomService: RoomService){}
 
@@ -51,6 +52,14 @@ export class ChatListComponent {
   ngOnInit() {
     // SignalR is now handled by the parent widget-container component
     // No need to initialize it here
+    this.filteredChats = [...this.chats];
+  }
+
+  ngOnChanges(changes: SimpleChanges): void {
+    if (changes['chats']) {
+      this.filteredChats = [...this.chats];
+      this.filterMembers();
+    }
   }
 
 
@@ -68,12 +77,12 @@ export class ChatListComponent {
 
   private filterMembers() {
     if (!this.searchQuery.trim()) {
-      this.chats = [...this.chats];
+      this.filteredChats = [...this.chats];
       return;
     }
 
     const query = this.searchQuery.toLowerCase();
-    this.chats = this.chats.filter(chat =>
+    this.filteredChats = this.chats.filter(chat =>
       chat.title.toLowerCase().includes(query)
     );
   }
