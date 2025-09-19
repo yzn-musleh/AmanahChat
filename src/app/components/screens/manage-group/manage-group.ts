@@ -73,7 +73,7 @@ export class ManageGroup implements OnChanges {
       const users = this.workspaceUsers || [];
       this.members = users.map(u => ({
         id: u.id,
-        name: u.name || `${u.firstName ?? ''} ${u.lastName ?? ''}`.trim(),
+        name: u.username || `${u.firstName ?? ''} ${u.lastName ?? ''}`.trim(),
         type: 'team'
       }));
       this.filteredMembers = [...this.members];

@@ -12,8 +12,8 @@ import { WorkspaceUser } from '../../widget-container/widget-container.component
 })
 export class CommunicationComponent {
 
-  // @Input() workspaceUsers: WorkspaceUser[] | null = [];
-  @Input() chats: ChatItem[] = [];
+   @Input() workspaceUsers: WorkspaceUser[] | null = [];
+ // @Input() chats: ChatItem[] = [];
 
   @Output() onGroupCreation = new EventEmitter<void>();
   // @Output() onNewDirectChat = new EventEmitter<void>()

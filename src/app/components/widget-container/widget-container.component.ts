@@ -29,7 +29,7 @@ export interface WorkspaceUser {
   id: string;
   firstName: string;  
   lastName: string;
-  name: string;
+  username: string;
   isAdmin: boolean;
 }
 
@@ -73,14 +73,26 @@ export class ChatWidgetComponent implements OnInit, OnDestroy {
 
       // Start SignalR connection and subscribe to incoming messages
       this.signalRService.startConnection().then(() => {
-        // Connected
+        // Connected - join all chat rooms for real-time updates
+        this.chats.forEach(room => {
+          this.signalRService.joinRoom(room.chatRoomId).catch(err => 
+            console.error(`Failed to join room ${room.chatRoomId}:`, err)
+          );
+        });
       }).catch(err => console.error('SignalR start error:', err));
 
       this.signalRService.messageReceived$
         .pipe(takeUntil(this.destroy$))
         .subscribe((msg: any) => {
+          // Move the chat that received the message to the top
+          this.moveChatToTop(msg.chatRoomId, msg.lastActionDate);
+
+          // Only add message to current conversation if it's the selected chat
           if (!this.selectedChat) return;
-          if (msg.chatRoomId !== this.selectedChat.chatRoomId) return;
+          if (msg.chatRoomId === this.selectedChat.chatRoomId) return;
+
+          console.log("messge shoudl not be here", msg, "\n", this.selectedChat);
+          
 
           const normalized = {
             ...msg,
@@ -109,7 +121,14 @@ export class ChatWidgetComponent implements OnInit, OnDestroy {
           this.chats = [...rooms];
           console.log(this.chats);
 
-          
+          // Join all rooms for real-time updates if SignalR is connected
+          if (this.signalRService.isConnected()) {
+            this.chats.forEach(room => {
+              this.signalRService.joinRoom(room.chatRoomId).catch(err => 
+                console.error(`Failed to join room ${room.chatRoomId}:`, err)
+              );
+            });
+          }
         },
         error: (error) => {
           console.error('Error loading chat rooms:', error);
@@ -190,6 +209,7 @@ export class ChatWidgetComponent implements OnInit, OnDestroy {
   }
 
   onAdd(): void {
+    this.loadUsers()
     this.navigationService.goToCommunicationHub();
   }
 
@@ -212,6 +232,22 @@ export class ChatWidgetComponent implements OnInit, OnDestroy {
   // ===========================================
   // DATA HELPER METHODS
   // ===========================================
+
+  /**
+   * Move a chat to the top of the list when it receives a new message
+   */
+  private moveChatToTop(chatRoomId: string, lastActionDate: any): void {
+    const roomIndex = this.chats.findIndex(r => r.chatRoomId === chatRoomId);
+    
+    if (roomIndex !== -1) {
+      // Update the last action date
+      this.chats[roomIndex].lastActionDate = lastActionDate ? new Date(lastActionDate) : new Date();
+      
+      // Move to top
+      const [room] = this.chats.splice(roomIndex, 1);
+      this.chats.unshift(room);
+    }
+  }
 
   /**
    * Get pre-selected users for group creation
