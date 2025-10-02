@@ -30,7 +30,7 @@ export class ConversationComponent implements AfterViewChecked {
   @Output() onFileUpload = new EventEmitter<File>();
   @Output() backToList = new EventEmitter<void>();
 
-  @ViewChild('messagesContainer', { static: false }) messagesContainer!: ElementRef;
+  @ViewChild('messagesContainer') messagesContainer!: ElementRef;
   @ViewChild('messageInput', { static: false }) messageInput!: ElementRef;
 
   private shouldScrollToBottom = false;
@@ -56,11 +56,7 @@ export class ConversationComponent implements AfterViewChecked {
   }
 
   ngAfterViewChecked() {
-    if (this.shouldScrollToBottom) {
-      this.scrollToBottom();
-      this.shouldScrollToBottom = false;
-    }
-
+   this.scrollToBottom()
   }
 
   sendMessage(): void {
@@ -69,9 +65,6 @@ export class ConversationComponent implements AfterViewChecked {
 
   console.log("message form: ", this.messageForm);
   console.log("selectedChat: ", this.selectedChat)
-  
-  
-  
 
     if (this.messageForm.invalid || !this.selectedChat ) return;
 
@@ -150,6 +143,4 @@ export class ConversationComponent implements AfterViewChecked {
     }
   }
 
-  
 }
-

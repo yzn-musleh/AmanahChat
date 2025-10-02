@@ -17,7 +17,7 @@ export class App {
       secondaryColor: '#000000',
       textPrimaryColor: '#ffffff',
       textSecondryColor: '#ffffff',
-      backgroundColor: 'linear-gradient(135deg, #FFFFFF 0%, #56215E 100%)'
+      backgroundColor: 'linear-gradient(267deg, #FFFFFF 0%, #56215E 100%)'
     },
     position: 'bottom-right',
     enableGuestUsers: true
