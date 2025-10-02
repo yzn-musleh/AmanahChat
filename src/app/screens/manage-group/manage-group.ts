@@ -1,37 +1,10 @@
 import { CommonModule } from '@angular/common';
 import { Component, ElementRef, EventEmitter, Input, Output, ViewChild, OnChanges, SimpleChanges } from '@angular/core';
 import { FormsModule } from '@angular/forms';
-import { AuthService } from '../../../services/auth.service';
-import { RoomService } from '../../../services/room.service';
+import { AuthService } from '../../services/auth.service';
+import { RoomService } from '../../services/room.service';
 import { takeUntil } from 'rxjs';
-import { WorkspaceUser } from '../../widget-container/widget-container.component';
-
-export interface TeamMember {
-  id: string;
-  name: string;
-  type: 'team' | 'driver';
-  avatar?: string;
-  isOnline?: boolean;
-  memberCount?: number; // For teams
-}
-
-export interface GroupCreation {
-  name: string;
-  selectedMembers: TeamMember[];
-}
-
-export interface AddRoomMemberRequest {
-  userId: string;
-  isAdmin: boolean;
-}
-
-
-export interface CreateRoomRequest {
-  title: string;
-  description: string;
-  workspaceId: string;
-  roomMembers: AddRoomMemberRequest[];
-}
+import { CreateRoomRequest, GroupCreation, TeamMember, WorkspaceUser } from '../../Utils/Models';
 
 @Component({
   selector: 'app-manage-group',

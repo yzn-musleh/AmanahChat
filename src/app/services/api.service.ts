@@ -4,13 +4,8 @@ import { Observable, throwError } from 'rxjs';
 import { catchError, map } from 'rxjs/operators';
 import { AuthService } from './auth.service';
 import { environment } from '../../environment/environment';
+import { ApiResult, SendMessageRequest } from '../Utils/Models';
 
-export interface ApiResult<T> {
-    errorCode: number;
-    errorCodeLevel: number;
-    message: string;
-    result: T;
-}
 
 @Injectable({
     providedIn: 'root'
@@ -23,7 +18,8 @@ export class ApiService {
     private getHeaders(): HttpHeaders {
         return new HttpHeaders({
             'Content-Type': 'application/json',
-            'Accept': 'application/json'
+            'Accept': 'application/json',
+            'X-Api-Key': "DLRvsrghCfA=.bCokQ2+BjI/OXn8wDoqdYkg+pSBCzJ6gBQuCbzV8LCw="
         });
     }
 
@@ -53,9 +49,22 @@ export class ApiService {
 
     post<T>(endpoint: string, data: any): Observable<T> {
         return this.http.post<ApiResult<T>>(`${this.baseUrl}/${endpoint}`, data, {
+
+            
             headers: this.getHeaders()
         }).pipe(
             map(response => this.handleResponse(response)),
+            catchError(this.handleError)
+        );
+    }
+
+
+    postForm<T>(endpoint: string, formData: FormData): Observable<T> {
+        return this.http.post<ApiResult<T>>(
+            `${this.baseUrl}/${endpoint}`,
+            formData // FormData → do NOT set Content-Type, browser handles it
+        ).pipe(
+            map((response: ApiResult<T>) => this.handleResponse(response)),
             catchError(this.handleError)
         );
     }
@@ -146,29 +155,5 @@ export class ApiService {
         return this.http.post<any>(this.baseUrl + "/DirectChat/direct", body);
     }
 
-    // Message endpoints
-    sendMessage(message: any): Observable<string> {
-        return this.post<string>('Messages/Send', message);
-    }
-
-    getMessages(chatRoomId: string, page: number = 1, pageSize: number = 50): Observable<any[]> {
-        const params = new HttpParams()
-            .set('page', page.toString())
-            .set('pageSize', pageSize.toString());
-
-        return this.get<any[]>(`Messages/RoomMessages/${chatRoomId}`, params);
-    }
-
-    getRoomMessages(chatRoomId: string, page: number = 1, pageSize: number = 50): Observable<any> {
-        const params = new HttpParams()
-            .set('page', page.toString())
-            .set('pageSize', pageSize.toString());
-
-        return this.get<any>(`Messages/Room/${chatRoomId}`, params);
-    }
-
-    deleteMessage(payload: { chatRoomId: string; roomMemberId: string; messageId: string }): Observable<void> {
-        return this.deleteWithBody<void>('Messages/Delete', payload);
-    }
 }
 

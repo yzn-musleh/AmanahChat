@@ -1,7 +1,5 @@
 // Group Selector Component SCSS
 .group-selector-container {
-    --primary-color: #7b2d8e;
-    --primary-dark: #5d1f6b;
     --accent-color: #ffd700;
     --success-color: #2ecc71;
     --text-primary: #2c3e50;
@@ -24,7 +22,7 @@
     font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
     box-shadow: var(--shadow-medium);
     position: relative;
-    max-height: 93%;
+    height: 95%;
 
     // Header Section
     .selector-header {

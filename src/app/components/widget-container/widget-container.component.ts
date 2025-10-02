@@ -3,35 +3,18 @@ import { Observable, of, Subject } from 'rxjs';
 import { takeUntil } from 'rxjs/operators';
 import { NavigationService, ViewType, WidgetState } from '../../services/navigation.service';
 import { CommonModule } from '@angular/common';
-import { ChatItem, ChatListComponent } from "../screens/chat-list.component/chat-list.component";
-import { ChatMessage, ConversationComponent } from "../screens/conversation.component/conversation.component";
-import { ManageGroup } from "../screens/manage-group/manage-group";
+import { ChatListComponent } from "../../screens/chat-list.component/chat-list.component";
+import { ConversationComponent } from "../../screens/conversation.component/conversation.component";
+import { ManageGroup } from "../../screens/manage-group/manage-group";
 import { ApiService } from '../../services/api.service';
 import { BehaviorSubject } from 'rxjs';
 import { RoomService } from '../../services/room.service';
 import { SignalRService } from '../../services/signalr.service';
-import { CommunicationComponent } from '../screens/communication-component/communication-component';
+import { CommunicationComponent } from '../../screens/communication-component/communication-component';
 import { AuthService } from '../../services/auth.service';
+import { ChatItem, ChatWidgetConfig, WorkspaceUser } from '../../Utils/Models';
+import { MessageService } from '../../services/message.service';
 
-// Widget configuration interface
-export interface ChatWidgetConfig {
-  theme?: {
-    primaryColor?: string;
-    secondaryColor?: string;
-    backgroundColor?: string;
-  };
-  position?: 'bottom-right' | 'bottom-left' | 'top-right' | 'top-left';
-  enableGuestUsers?: boolean;
-  // ... other config options
-}
-
-export interface WorkspaceUser {
-  id: string;
-  firstName: string;  
-  lastName: string;
-  username: string;
-  isAdmin: boolean;
-}
 
 @Component({
   selector: 'chat-widget',
@@ -45,11 +28,8 @@ export class ChatWidgetComponent implements OnInit, OnDestroy {
 
   ViewType = ViewType;
   widgetState: WidgetState;
-
   private destroy$ = new Subject<void>();
-
   selectedChat!: ChatItem
-
   chats: ChatItem[] = []
   private messagesSubject = new BehaviorSubject<any[]>([]);
   messages$ = this.messagesSubject.asObservable();
@@ -57,12 +37,17 @@ export class ChatWidgetComponent implements OnInit, OnDestroy {
   private workspaceUsersSubject = new BehaviorSubject<WorkspaceUser[]>([]);
   workspaceUsers$ = this.workspaceUsersSubject.asObservable();
 
-  constructor(private navigationService: NavigationService, private authService: AuthService, private roomService: RoomService, private apiService: ApiService, private signalRService: SignalRService) {
+
+  constructor(private navigationService: NavigationService,
+     private authService: AuthService, private roomService: RoomService,
+      private apiService: ApiService, private signalRService: SignalRService,
+       private messageService: MessageService) {
     // Initialize with current state
     this.widgetState = this.navigationService.currentState;
   }
 
   ngOnInit(): void {
+
     this.navigationService.state$
       .pipe(takeUntil(this.destroy$))
       .subscribe(state => {
@@ -102,6 +87,15 @@ export class ChatWidgetComponent implements OnInit, OnDestroy {
         });
   }
 
+  applyTheme() {
+    const root = document.documentElement;
+
+    root.style.setProperty('--primary-color', this.config?.theme?.primaryColor ?? '');
+    root.style.setProperty('--secondary-color', this.config?.theme?.secondaryColor ?? '');
+    root.style.setProperty('--background-color', this.config?.theme?.backgroundColor ?? '');
+  }
+
+
   ngOnDestroy(): void {
     this.destroy$.next();
     this.destroy$.complete();
@@ -134,10 +128,9 @@ export class ChatWidgetComponent implements OnInit, OnDestroy {
       });
   }
 
-
   private loadMessages(chatId: string): void {
     if (!chatId) return;
-    this.apiService.getMessages(chatId)
+    this.messageService.getMessages(chatId)
       .pipe(takeUntil(this.destroy$))
       .subscribe({
         next: (messages) => {

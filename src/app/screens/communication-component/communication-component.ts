@@ -1,9 +1,8 @@
 import { CommonModule } from '@angular/common';
 import { Component, EventEmitter, Input, Output, OnChanges, SimpleChanges } from '@angular/core';
 import { FormsModule } from '@angular/forms';
-import { ChatItem } from '../chat-list.component/chat-list.component';
-import { ApiService } from '../../../services/api.service';
-import { WorkspaceUser } from '../../widget-container/widget-container.component';
+import { ApiService } from '../../services/api.service';
+import { WorkspaceUser } from '../../Utils/Models';
 
 @Component({
   selector: 'app-communication-component',

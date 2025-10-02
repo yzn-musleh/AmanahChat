@@ -1,35 +1,10 @@
 import { AfterViewChecked, Component, ElementRef, EventEmitter, Input, Output, ViewChild } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { FormBuilder, FormGroup, FormsModule, ReactiveFormsModule, Validators } from '@angular/forms';
+import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { Observable, Subject, takeUntil } from 'rxjs';
-import { ApiService } from '../../../services/api.service';
-import { ChatItem } from '../chat-list.component/chat-list.component';
-
-export interface ChatMessage {
-  id: string;
-  message: string;
-  timestamp: Date;
-  isFromCurrentUser: boolean;
-  isFromDriver?: boolean;
-  senderName?: string;
-  senderAvatar?: string;
-  status?: 'sending' | 'sent' | 'delivered' | 'read';
-}
-
-export interface ConversationUser {
-  id: string;
-  name: string;
-  avatar?: string;
-  isOnline?: boolean;
-  role?: 'driver' | 'customer' | 'support';
-}
-
-export interface SendMessageRequest {
-  roomMemberId: string;
-  message: string;
-  chatRoomId: string;
-  filePath?: string;
-}
+import { ApiService } from '../../services/api.service';
+import { ChatItem, SendMessageRequest } from '../../Utils/Models';
+import { MessageService } from '../../services/message.service';
 
 @Component({
   selector: 'app-conversation',
@@ -69,7 +44,7 @@ export class ConversationComponent implements AfterViewChecked {
   isLoading = false;
   isSending = false;
 
-  constructor(private apiService: ApiService,
+  constructor(private apiService: ApiService, private messageService: MessageService,
     private fb: FormBuilder){
     this.messageForm = this.fb.group({
       message: ['', [Validators.required, Validators.maxLength(1000)]]
@@ -104,9 +79,10 @@ export class ConversationComponent implements AfterViewChecked {
     const request: SendMessageRequest = {
       roomMemberId: this.selectedChat.roomMemberId,
       chatRoomId: this.selectedChat?.chatRoomId,
-      message: messageText
+      message: messageText, 
+      file: undefined
     };
-    this.apiService.sendMessage(request)
+    this.messageService.sendMessage(request)
       .pipe(takeUntil(this.destroy$))
       .subscribe({
         next: (messageId) => {

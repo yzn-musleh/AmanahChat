@@ -8,8 +8,7 @@
       <div 
         *ngIf="widgetState.isMinimized" 
         class="chat-bubble"
-        (click)="toggleWidget()"
-        [style.background-color]="config?.theme?.primaryColor || '#6B46C1'">
+        (click)="toggleWidget()">
         <svg width="24" height="24" viewBox="0 0 24 24" fill="white">
           <path d="M12 2C6.48 2 2 6.48 2 12c0 1.54.36 2.98.97 4.29L1 23l6.71-1.97C9.02 21.64 10.46 22 12 22c5.52 0 10-4.48 10-10S17.52 2 12 2z"/>
         </svg>

@@ -1,21 +1,7 @@
 import { Component, EventEmitter, Input, Output, OnChanges, SimpleChanges } from '@angular/core';
-import { ChatWidgetConfig } from '../../widget-container/widget-container.component';
 import { CommonModule } from '@angular/common';
-import { Subject, takeUntil } from 'rxjs';
-import { RoomService } from '../../../services/room.service';
-
-
-export interface ChatItem {
-  chatRoomId: string;
-  roomMemberId: string
-  title: string;
-  lastMessage: string;
-  avatarUrl?: string;
-  lastActionDate: Date;
-  totalMessages?: number;
-  type?: 'group' | 'direct';
-  isOnline?: boolean;
-}
+import { Subject } from 'rxjs';
+import { ChatItem, ChatWidgetConfig } from '../../Utils/Models';
 
 @Component({
   selector: 'app-chat-list',
@@ -29,7 +15,7 @@ export class ChatListComponent implements OnChanges {
   
   @Input() config?: ChatWidgetConfig;
 
-  @Input() title: string = 'Title';
+  @Input() title: string = 'Abovve';
   @Input() searchPlaceholder: string = 'Search by drive name or group';
   @Input() showAddButton: boolean = true;
 
@@ -46,12 +32,10 @@ export class ChatListComponent implements OnChanges {
   shouldScrollToBottom = false;
   filteredChats: ChatItem[] = [];
 
-  constructor(private roomService: RoomService){}
 
   // Sample data for demonstration
   ngOnInit() {
-    // SignalR is now handled by the parent widget-container component
-    // No need to initialize it here
+    this.applyTheme();
     this.filteredChats = [...this.chats];
   }
 
@@ -62,6 +46,13 @@ export class ChatListComponent implements OnChanges {
     }
   }
 
+  applyTheme() {
+    const root = document.documentElement;
+
+    root.style.setProperty('--primary-color', this.config?.theme?.primaryColor ?? '');
+    root.style.setProperty('--secondary-color', this.config?.theme?.secondaryColor ?? '');
+    root.style.setProperty('--background-color', this.config?.theme?.backgroundColor ?? '');
+  }
 
   ngOnDestroy(): void {
     this.destroy$.next();
